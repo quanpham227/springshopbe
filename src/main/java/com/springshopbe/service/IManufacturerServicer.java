@@ -15,4 +15,6 @@ public interface IManufacturerServicer {
     Page<ManufacturerDTO> getAllManufacturerPaginged (String keyword, Pageable pageable);
 
     ManufacturerDTO findById (Long id);
+
+    void deleteById(Long id);
 }

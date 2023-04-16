@@ -96,4 +96,10 @@ public class ManufacturerController {
         return new ResponseEntity<>(manufacturerService.findById(id), HttpStatus.OK);
 
     }
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<?> deleteManufatere (@PathVariable("id") Long id) {
+        manufacturerService.deleteById(id);
+        return new ResponseEntity<>("Manufacturer with id : "+ id + " was deleted ", HttpStatus.OK);
+
+    }
 }
