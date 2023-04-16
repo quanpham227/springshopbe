@@ -1,5 +1,6 @@
 package com.springshopbe.controller;
 
+import com.springshopbe.dto.CategoryDTO;
 import com.springshopbe.dto.ManufacturerDTO;
 import com.springshopbe.exeption.FileNotFoundExeption;
 import com.springshopbe.exeption.FileStogareExeption;
@@ -9,6 +10,9 @@ import com.springshopbe.service.impl.ManufacturerService;
 import com.springshopbe.service.impl.MapValidationErrorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,6 +22,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/api/v1/manufacturers")
@@ -60,5 +67,33 @@ public class ManufacturerController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\""
                         + resource.getFilename() + "\"")
                 .body(resource);
+    }
+
+    @GetMapping
+    public ResponseEntity<Map<String,Object>> getmanufacturer(@RequestParam(value = "keyword", defaultValue = "", required = false) String keyword,
+                                                              @RequestParam(defaultValue = "0") int page,
+                                                              @RequestParam(defaultValue = "10") int size){
+        try {
+            Pageable pageable = PageRequest.of(page,size);
+            Page<ManufacturerDTO> manufacturerDTOPage;
+            if(keyword.isEmpty()){
+                manufacturerDTOPage = manufacturerService.getAllManufacturerPaginged(pageable);
+            }else {
+                manufacturerDTOPage = manufacturerService.getAllManufacturerPaginged(keyword,pageable);
+            }
+            List<ManufacturerDTO> manufacturers = manufacturerDTOPage.getContent();
+            Map<String,Object> response = new HashMap<>();
+            response.put("manufacturers", manufacturers);
+            response.put("totalElements", manufacturerDTOPage.getTotalElements());
+            response.put("totalPage", manufacturerDTOPage.getTotalPages());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }catch (Exception exception){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @GetMapping(value = "/{id}/get")
+    public ResponseEntity<?> getManufacturerById (@PathVariable("id") Long id) {
+        return new ResponseEntity<>(manufacturerService.findById(id), HttpStatus.OK);
+
     }
 }
