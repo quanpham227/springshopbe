@@ -76,16 +76,26 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     return errorResponse;
   }
 
-  @ExceptionHandler(NonUniqueResultException.class)
-  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-  public ErrorResponse handlerNonUniqueResultException(NonUniqueResultException ex,
-      WebRequest request) {
-    ErrorResponse errorResponse = new ErrorResponse(
-        HttpStatus.INTERNAL_SERVER_ERROR,
-        new Date(),
-        ex.getMessage(),
-        request.getDescription(false));
-    return errorResponse;
+  @ExceptionHandler(FileNotFoundExeption.class)
+  @ResponseBody
+  public ResponseEntity<Object> handleFileNotFoundExeption(FileNotFoundExeption ex, WebRequest request) {
+    ErrorDetails errorDetails = new ErrorDetails(LocalDate.now(), "FileNotFoundExeption",
+            ex.getMessage());
+    return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+  }
+  @ExceptionHandler(FileStogareExeption.class)
+  @ResponseBody
+  public ResponseEntity<Object> handleFileStogareException(FileStogareExeption ex, WebRequest request) {
+    ErrorDetails errorDetails = new ErrorDetails(LocalDate.now(), "FileStogareExeption",
+            ex.getMessage());
+    return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+  }
+  @ExceptionHandler(ManufacturerExeption.class)
+  @ResponseBody
+  public ResponseEntity<Object> handleManufacturerExeption(FileStogareExeption ex, WebRequest request) {
+    ErrorDetails errorDetails = new ErrorDetails(LocalDate.now(), "MunufacturerExeption",
+            ex.getMessage());
+    return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
   }
 
   // Xử lý tất cả các exception chưa được khai báo
@@ -136,4 +146,6 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
         ex.getMessage());
     return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
   }
+
+
 }

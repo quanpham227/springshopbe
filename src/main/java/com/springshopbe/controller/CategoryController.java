@@ -1,7 +1,6 @@
 package com.springshopbe.controller;
 
 import com.springshopbe.dto.CategoryDTO;
-import com.springshopbe.response.ResponseObject;
 import com.springshopbe.service.ICategoryService;
 import com.springshopbe.service.impl.MapValidationErrorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +18,8 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/categories")
+@CrossOrigin
 public class CategoryController {
     @Autowired
     private MapValidationErrorService mapValidationErrorService;
@@ -29,7 +29,7 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    @GetMapping(value = "/categories/search")
+    @GetMapping
     public ResponseEntity<Map<String, Object>> getAllCategories (
             @RequestParam(value = "keyword", defaultValue = "", required = false) String keyword,
             @RequestParam(defaultValue = "0") int page,
@@ -53,36 +53,34 @@ public class CategoryController {
         }
     }
 
-    @GetMapping(value = "/category/{id}")
+    @GetMapping(value = "/{id}/get")
     public ResponseEntity<?> getCategoryById(@PathVariable("id") Long id) {
-        CategoryDTO category = categoryService.findByCategoryId(id);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new ResponseObject("200", "Search category by id successfully", category));
+        return new ResponseEntity<>(categoryService.findByCategoryId(id), HttpStatus.OK);
     }
 
-    @PostMapping(value = "/category")
+    @PostMapping
     public ResponseEntity<?> createCategory(@RequestBody @Valid CategoryDTO categoryDTO, BindingResult result){
         ResponseEntity<?> responseEntity = mapValidationErrorService.mapValidationFieds(result);
         if(responseEntity != null){
             return responseEntity;
         }
         CategoryDTO category = categoryService.createCategory(categoryDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseObject("201", "Create category successfully !", category));
+        return new ResponseEntity<>(category, HttpStatus.CREATED);
     }
-    @PutMapping(value = "/category")
-    public ResponseEntity<?> updateCategory (@RequestBody @Valid CategoryDTO categoryDTO, BindingResult result){
+    @PatchMapping ("{id}")
+    public ResponseEntity<?> updateCategory (@PathVariable ("id") Long id, @RequestBody @Valid CategoryDTO categoryDTO, BindingResult result){
         ResponseEntity<?> responseEntity = mapValidationErrorService.mapValidationFieds(result);
         if(responseEntity != null){
             return responseEntity;
         }
-        CategoryDTO category = categoryService.updateCategory(categoryDTO);
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("200", "Update category successfully !", category));
 
+
+        CategoryDTO category = categoryService.updateCategory(id, categoryDTO);
+        return new ResponseEntity<>(category, HttpStatus.CREATED);
     }
-    @DeleteMapping(value = "/categories/{id}")
-    public ResponseEntity<ResponseObject> deleteCategory(@PathVariable("id")  Long id) {
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<?> deleteCategory(@PathVariable("id")  Long id) {
         categoryService.deleteCategoryById(id);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new ResponseObject("200", "Delete posts successfully", ""));
+        return new ResponseEntity<>("Category with id "+ id + " was deleted ",HttpStatus.OK);
     }
 }

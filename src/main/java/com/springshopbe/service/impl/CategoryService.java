@@ -2,7 +2,7 @@ package com.springshopbe.service.impl;
 
 import com.springshopbe.dto.CategoryDTO;
 import com.springshopbe.entity.CategoryEntity;
-import com.springshopbe.exeption.BadRequestExeption;
+import com.springshopbe.exeption.CategoryExeption;
 import com.springshopbe.exeption.DuplicateRecordException;
 import com.springshopbe.exeption.NotFoundExeption;
 import com.springshopbe.repository.CategoryRepository;
@@ -77,20 +77,20 @@ public class CategoryService implements ICategoryService {
             CategoryEntity categoryEntity = modelMapper.map(categoryDTO, CategoryEntity.class);
             return modelMapper.map(categoryRepository.save(categoryEntity), CategoryDTO.class);
         }catch (Exception exception){
-            throw new BadRequestExeption("Category is create fail");
+            throw new CategoryExeption("Category is create fail");
         }
     }
 
     @Override
     @Transactional
-    public CategoryDTO updateCategory(CategoryDTO categoryDTO) {
-        CategoryEntity categoryEntityOld = this.categoryRepository.findByCategoryId(categoryDTO.getId())
-                .orElseThrow(()-> new NotFoundExeption("Category not found with id :" + categoryDTO.getId()));
+    public CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO) {
+        CategoryEntity categoryEntityOld = this.categoryRepository.findByCategoryId(id)
+                .orElseThrow(()-> new NotFoundExeption("Category not found with id :" + id));
         try{
             this.modelMapper.map(categoryDTO, categoryEntityOld);
             return modelMapper.map(this.categoryRepository.save(categoryEntityOld), CategoryDTO.class);
         }catch (Exception exception){
-            throw new BadRequestExeption("Category is update fail");
+            throw new CategoryExeption("Category is update fail");
         }
 
     }
@@ -103,7 +103,7 @@ public class CategoryService implements ICategoryService {
         try{
             categoryRepository.deleteCategoryById(id);
         }catch (Exception exception){
-            throw new BadRequestExeption("Category is delete fail");
+            throw new CategoryExeption("Category is delete fail");
         }
     }
 }

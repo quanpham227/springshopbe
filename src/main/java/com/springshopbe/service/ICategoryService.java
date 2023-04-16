@@ -10,7 +10,7 @@ public interface ICategoryService {
     CategoryDTO findByCategoryId(Long id);
     CategoryDTO findByCategoryName(String name);
     CategoryDTO createCategory(CategoryDTO categoryDTO);
-    CategoryDTO updateCategory(CategoryDTO categoryDTO);
+    CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO);
     void deleteCategoryById(Long id);
 
 }
