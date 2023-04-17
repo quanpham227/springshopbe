@@ -1,12 +1,9 @@
 package com.springshopbe.controller;
 
-import com.springshopbe.dto.CategoryDTO;
 import com.springshopbe.dto.ManufacturerDTO;
-import com.springshopbe.exeption.FileNotFoundExeption;
 import com.springshopbe.exeption.FileStogareExeption;
 import com.springshopbe.service.IManufacturerServicer;
 import com.springshopbe.service.impl.FileStogareService;
-import com.springshopbe.service.impl.ManufacturerService;
 import com.springshopbe.service.impl.MapValidationErrorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -48,6 +45,21 @@ public class ManufacturerController {
         ManufacturerDTO dto = manufacturerService.insertManufacturer(manufacturerDTO);
         return new  ResponseEntity<>(dto, HttpStatus.CREATED);
     }
+
+    @PatchMapping(value = "{id}",
+            consumes = {MediaType.APPLICATION_JSON_VALUE,
+                MediaType.APPLICATION_FORM_URLENCODED_VALUE,
+                MediaType.MULTIPART_FORM_DATA_VALUE},
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> updateManufacturer(@PathVariable Long id ,@Valid @ModelAttribute ManufacturerDTO manufacturerDTO, BindingResult result){
+        ResponseEntity<?> responseEntity = mapValidationErrorService.mapValidationFieds(result);
+        if(responseEntity != null){
+            return responseEntity;
+        }
+        ManufacturerDTO dto = manufacturerService.updateManufacturer(id,manufacturerDTO);
+        return new  ResponseEntity<>(dto, HttpStatus.CREATED);
+    }
+
 
     @GetMapping("/logo/{filename:.+}")
     public ResponseEntity<?> downloadFile (@PathVariable String filename, HttpServletRequest request){

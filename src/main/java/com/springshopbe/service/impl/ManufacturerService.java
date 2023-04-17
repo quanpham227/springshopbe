@@ -36,15 +36,35 @@ public class ManufacturerService implements IManufacturerServicer {
             throw new ManufacturerExeption("Manufacturer name is existed");
         }
         ManufacturerEntity manufacturerEntity = new ManufacturerEntity();
-
-        if(manufacturerDTO.getLogoFile() != null){
+        if(manufacturerDTO.getLogoFile().isEmpty()){
+            throw new FileNotFoundExeption("Logo file is empty");
+        }
+        try {
             String filename = fileStogareService.storeLogoFile(manufacturerDTO.getLogoFile());
             manufacturerEntity = this.modelMapper.map(manufacturerDTO, ManufacturerEntity.class);
             manufacturerEntity.setLogo(filename);
-        }else {
-            throw new FileNotFoundExeption("Logo file is not found");
+            return modelMapper.map(manufacturerRepository.save(manufacturerEntity),ManufacturerDTO.class);
+        }catch (Exception exception){
+            throw new RuntimeException("create manufacturer is failed");
         }
-        return modelMapper.map(manufacturerRepository.save(manufacturerEntity),ManufacturerDTO.class);
+    }
+
+    @Override
+    public ManufacturerDTO updateManufacturer(Long id,ManufacturerDTO manufacturerDTO) {
+        ManufacturerEntity manufacturerEntityOld = manufacturerRepository.getManufacturerEntitiesById(id)
+                .orElseThrow(() -> new NotFoundExeption("Manufacturer with id: " + id + " not found"));
+               if(manufacturerDTO.getLogoFile().isEmpty()){
+                   throw new FileNotFoundExeption("Logo file is empty");
+               }
+               try {
+                   String filename = fileStogareService.storeLogoFile(manufacturerDTO.getLogoFile());
+                   fileStogareService.deleteLogoFile(manufacturerEntityOld.getLogo());
+                   this.modelMapper.map(manufacturerDTO, manufacturerEntityOld);
+                   manufacturerEntityOld.setLogo(filename);
+                   return modelMapper.map(manufacturerRepository.save(manufacturerEntityOld), ManufacturerDTO.class);
+               }catch (Exception exception){
+                   throw new RuntimeException("update manufacturer is failed");
+               }
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.springshopbe.service.impl;
 
 import com.springshopbe.dto.CategoryDTO;
 import com.springshopbe.entity.CategoryEntity;
-import com.springshopbe.exeption.CategoryExeption;
 import com.springshopbe.exeption.DuplicateRecordException;
 import com.springshopbe.exeption.NotFoundExeption;
 import com.springshopbe.repository.CategoryRepository;
@@ -47,7 +46,7 @@ public class CategoryService implements ICategoryService {
         return categoryEntityPage.map(new Function<CategoryEntity, CategoryDTO>() {
             @Override
             public CategoryDTO apply(CategoryEntity category) {
-                return null;
+                return new ModelMapper().map(category, CategoryDTO.class);
             }
         });
     }
@@ -77,7 +76,7 @@ public class CategoryService implements ICategoryService {
             CategoryEntity categoryEntity = modelMapper.map(categoryDTO, CategoryEntity.class);
             return modelMapper.map(categoryRepository.save(categoryEntity), CategoryDTO.class);
         }catch (Exception exception){
-            throw new CategoryExeption("Category is create fail");
+            throw new RuntimeException("Category is create fail");
         }
     }
 
@@ -90,7 +89,7 @@ public class CategoryService implements ICategoryService {
             this.modelMapper.map(categoryDTO, categoryEntityOld);
             return modelMapper.map(this.categoryRepository.save(categoryEntityOld), CategoryDTO.class);
         }catch (Exception exception){
-            throw new CategoryExeption("Category is update fail");
+            throw new RuntimeException("Category is update fail");
         }
 
     }
@@ -103,7 +102,7 @@ public class CategoryService implements ICategoryService {
         try{
             categoryRepository.deleteCategoryById(id);
         }catch (Exception exception){
-            throw new CategoryExeption("Category is delete fail");
+            throw new RuntimeException("Category is delete fail");
         }
     }
 }

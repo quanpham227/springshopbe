@@ -10,6 +10,8 @@ public interface IManufacturerServicer {
 
 
     ManufacturerDTO insertManufacturer(ManufacturerDTO manufacturerDTO);
+    ManufacturerDTO updateManufacturer(Long id ,ManufacturerDTO manufacturerDTO);
+
     List<ManufacturerDTO> getAllManufacturer ();
     Page<ManufacturerDTO> getAllManufacturerPaginged (Pageable pageable);
     Page<ManufacturerDTO> getAllManufacturerPaginged (String keyword, Pageable pageable);
