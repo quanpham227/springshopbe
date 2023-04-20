@@ -11,7 +11,7 @@ public class ProductImageDTO extends AbstractDTO<ProductImageDTO> implements Ser
 
     private String name;
 
-    private Long uid;
+    private String uid;
 
     private String fileName;
 

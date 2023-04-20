@@ -47,4 +47,25 @@ public class ProductController {
         dto.setUrl("http://localhost:8080/api/v1/products/images/" + fileInfo.getFileName());
         return new ResponseEntity<>(dto,HttpStatus.CREATED);
     }
+
+    @GetMapping("/images/{filename:.+}")
+    public ResponseEntity<?> downloadFile (@PathVariable String filename, HttpServletRequest request){
+
+        Resource resource = fileStogareService.loadProductImageFileAsResource(filename);
+
+        String contentType = null;
+        try{
+            contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+        }catch (Exception exception) {
+            throw new FileStogareExeption("Could not determine file type");
+        }
+        if(contentType == null){
+            contentType = "application/octet-stream";
+        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\""
+                        + resource.getFilename() + "\"")
+                .body(resource);
+    }
 }

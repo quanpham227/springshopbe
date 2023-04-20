@@ -67,7 +67,7 @@ public class ManufacturerController {
 
     @GetMapping("/logo/{filename:.+}")
     public ResponseEntity<?> downloadFile (@PathVariable String filename, HttpServletRequest request){
-        Resource resource = fileStogareService.loadFileAsResource(filename);
+        Resource resource = fileStogareService.loadLogoFileAsResource(filename);
 
         String contentType = null;
         try{

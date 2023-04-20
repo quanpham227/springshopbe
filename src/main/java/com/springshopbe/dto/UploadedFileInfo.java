@@ -7,10 +7,8 @@ public class UploadedFileInfo {
 
     private String name;
 
-    private Long uid;
+    private String uid;
 
     private String fileName;
-
-    private String url;
 
 }

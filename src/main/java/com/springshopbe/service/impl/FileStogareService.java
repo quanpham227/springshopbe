@@ -76,7 +76,7 @@ public class FileStogareService {
 
             UploadedFileInfo info = new UploadedFileInfo();
             info.setFileName(filename);
-            info.setUid(Long.valueOf(uudi.toString()));
+            info.setUid(uudi.toString());
             info.setName(StringUtils.getFilename(file.getOriginalFilename()));
 
             return info;
@@ -86,7 +86,7 @@ public class FileStogareService {
     }
 
 
-    public Resource loadFileAsResource (String filename){
+    public Resource loadLogoFileAsResource (String filename){
         return loadFileAsResource(fileLogoStogareLocation, filename);
     }
 
