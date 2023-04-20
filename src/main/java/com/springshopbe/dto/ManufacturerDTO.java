@@ -12,7 +12,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ManufacturerDTO extends BaseDTO<ManufacturerDTO> implements Serializable {
+public class ManufacturerDTO extends AbstractDTO<ManufacturerDTO> implements Serializable {
     private String name;
     private String logo;
 

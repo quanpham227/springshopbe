@@ -12,10 +12,10 @@ import java.util.Date;
 
 @MappedSuperclass // ddinhj nghia PARENT entity
 @EntityListeners(AuditingEntityListener.class)
-public abstract class BaseEntity {
+public abstract class AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
     @Column(name = "createddate")
     @CreatedDate
@@ -25,7 +25,8 @@ public abstract class BaseEntity {
     @LastModifiedDate
     private Date modifiedDate;
 
-    @Column(name = "createdby")
+
+    @Column(name = "createby")
     @CreatedBy
     private String createBy;
 
@@ -33,16 +34,15 @@ public abstract class BaseEntity {
     @LastModifiedBy
     private String modifiedBy;
 
-    public BaseEntity(){
-
+    public AbstractEntity(){
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
+    public AbstractEntity(Long id, Date createDate, Date modifiedDate, String createBy, String modifiedBy) {
         this.id = id;
+        this.createDate = createDate;
+        this.modifiedDate = modifiedDate;
+        this.createBy = createBy;
+        this.modifiedBy = modifiedBy;
     }
 
     public Date getCreateDate() {
@@ -76,4 +76,12 @@ public abstract class BaseEntity {
     public void setModifiedBy(String modifiedBy) {
         this.modifiedBy = modifiedBy;
     }
+
+    public Long getId() {
+        return id;
+    }
+    public void setId(Long id) {
+        this.id = id;
+    }
+
 }

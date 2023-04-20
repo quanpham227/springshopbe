@@ -9,8 +9,7 @@ import java.sql.Timestamp;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class BaseDTO <T>{
-
+public abstract class AbstractDTO<T>{
     private Long id;
     @JsonIgnore
     private Timestamp createdDate;

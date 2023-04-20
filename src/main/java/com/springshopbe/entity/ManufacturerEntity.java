@@ -7,7 +7,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "manufacturer")
-public class ManufacturerEntity extends BaseEntity{
+public class ManufacturerEntity extends AbstractEntity {
 
     @Column(name = "name", nullable = false)
     private String name;

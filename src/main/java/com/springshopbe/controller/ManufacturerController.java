@@ -1,15 +1,17 @@
 package com.springshopbe.controller;
 
 import com.springshopbe.dto.ManufacturerDTO;
+import com.springshopbe.entity.ManufacturerEntity;
 import com.springshopbe.exeption.FileStogareExeption;
 import com.springshopbe.service.IManufacturerServicer;
 import com.springshopbe.service.impl.FileStogareService;
 import com.springshopbe.service.impl.MapValidationErrorService;
+import jdk.nashorn.internal.ir.CallNode;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,8 +24,10 @@ import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
+@CrossOrigin
 @RequestMapping(value = "/api/v1/manufacturers")
 public class ManufacturerController {
     @Autowired
@@ -81,27 +85,35 @@ public class ManufacturerController {
                 .body(resource);
     }
 
-    @GetMapping
-    public ResponseEntity<Map<String,Object>> getmanufacturer(@RequestParam(value = "keyword", defaultValue = "", required = false) String keyword,
-                                                              @RequestParam(defaultValue = "0") int page,
-                                                              @RequestParam(defaultValue = "10") int size){
-        try {
-            Pageable pageable = PageRequest.of(page,size);
-            Page<ManufacturerDTO> manufacturerDTOPage;
-            if(keyword.isEmpty()){
-                manufacturerDTOPage = manufacturerService.getAllManufacturerPaginged(pageable);
-            }else {
-                manufacturerDTOPage = manufacturerService.getAllManufacturerPaginged(keyword,pageable);
-            }
-            List<ManufacturerDTO> manufacturers = manufacturerDTOPage.getContent();
-            Map<String,Object> response = new HashMap<>();
-            response.put("manufacturers", manufacturers);
-            response.put("totalElements", manufacturerDTOPage.getTotalElements());
-            response.put("totalPage", manufacturerDTOPage.getTotalPages());
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }catch (Exception exception){
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+    @GetMapping("/find")
+    public ResponseEntity<?> getManufacturers(@RequestParam("query") String query,
+                @PageableDefault (size = 5, sort = "name", direction = Sort.Direction.ASC) Pageable pageable){
+        Page<ManufacturerDTO> manufacturerDTOPage;
+        if(query.isEmpty()){
+            manufacturerDTOPage = manufacturerService.getAllManufacturerPaginged(pageable);
+
+        }else {
+            manufacturerDTOPage = manufacturerService.getAllManufacturerPaginged(query,pageable);
         }
+        Page<ManufacturerDTO> newPage =  new PageImpl<ManufacturerDTO>
+                (manufacturerDTOPage.getContent(),manufacturerDTOPage.getPageable(),manufacturerDTOPage.getTotalPages());
+        System.out.println(manufacturerDTOPage.getTotalPages());
+        System.out.print(manufacturerDTOPage.getTotalElements());
+        return new ResponseEntity<>(newPage, HttpStatus.OK);
+
+    }
+
+    @GetMapping("/page")
+    public ResponseEntity<?> getmanufacturers(@PageableDefault (size = 5, sort = "name", direction = Sort.Direction.ASC) Pageable pageable){
+
+        Page<ManufacturerEntity> manufacturerEntityPage = manufacturerService.getAllManufacturers(pageable);
+        List<ManufacturerDTO> manufacturers = manufacturerEntityPage.stream().map(item-> {
+            ManufacturerDTO dto = new ManufacturerDTO();
+            BeanUtils.copyProperties(item, dto);
+            return dto;
+        }).collect(Collectors.toList());
+
+        return new ResponseEntity<>(manufacturers, HttpStatus.OK);
     }
     @GetMapping(value = "/{id}/get")
     public ResponseEntity<?> getManufacturerById (@PathVariable("id") Long id) {

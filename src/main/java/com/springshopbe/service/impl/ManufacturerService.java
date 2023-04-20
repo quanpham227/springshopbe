@@ -53,26 +53,23 @@ public class ManufacturerService implements IManufacturerServicer {
     public ManufacturerDTO updateManufacturer(Long id,ManufacturerDTO manufacturerDTO) {
         ManufacturerEntity manufacturerEntityOld = manufacturerRepository.getManufacturerEntitiesById(id)
                 .orElseThrow(() -> new NotFoundExeption("Manufacturer with id: " + id + " not found"));
-               if(manufacturerDTO.getLogoFile().isEmpty()){
-                   throw new FileNotFoundExeption("Logo file is empty");
-               }
-               try {
-                   String filename = fileStogareService.storeLogoFile(manufacturerDTO.getLogoFile());
-                   fileStogareService.deleteLogoFile(manufacturerEntityOld.getLogo());
-                   this.modelMapper.map(manufacturerDTO, manufacturerEntityOld);
-                   manufacturerEntityOld.setLogo(filename);
-                   return modelMapper.map(manufacturerRepository.save(manufacturerEntityOld), ManufacturerDTO.class);
-               }catch (Exception exception){
-                   throw new RuntimeException("update manufacturer is failed");
-               }
+        try {
+            if(manufacturerDTO.getLogoFile() != null) {
+                String filename = fileStogareService.storeLogoFile(manufacturerDTO.getLogoFile());
+                fileStogareService.deleteLogoFile(manufacturerEntityOld.getLogo());
+                manufacturerDTO.setLogo(filename);
+            }
+            this.modelMapper.map(manufacturerDTO, manufacturerEntityOld);
+            return modelMapper.map(manufacturerRepository.save(manufacturerEntityOld), ManufacturerDTO.class);
+        }catch (Exception exception){
+            throw new RuntimeException("update manufacturer is failed");
+        }
     }
 
     @Override
-    public List<ManufacturerDTO> getAllManufacturer() {
-        List<ManufacturerDTO> manufacturerDTOList= manufacturerRepository.getAllManufacturers().stream()
-                .map(ManufacturerEntity -> modelMapper.map(ManufacturerEntity, ManufacturerDTO.class))
-                .collect(Collectors.toList());
-        return manufacturerDTOList;
+    public Page<ManufacturerEntity> getAllManufacturers(Pageable pageable) {
+        Page<ManufacturerEntity> manufacturers= manufacturerRepository.getAllManufacturersPaginged(pageable);
+        return manufacturers;
     }
 
     @Override
@@ -84,17 +81,20 @@ public class ManufacturerService implements IManufacturerServicer {
                 return new ModelMapper().map(manufacturerEntity, ManufacturerDTO.class);
             }
         });
+
+
     }
 
     @Override
-    public Page<ManufacturerDTO> getAllManufacturerPaginged(String keyword, Pageable pageable) {
-        Page<ManufacturerEntity> manufacturerEntityPage = manufacturerRepository.getAllManufacturersPaginged(keyword,pageable);
+    public Page<ManufacturerDTO> getAllManufacturerPaginged(String query, Pageable pageable) {
+        Page<ManufacturerEntity> manufacturerEntityPage = manufacturerRepository.getAllManufacturersPaginged(query,pageable);
         return manufacturerEntityPage.map(new Function<ManufacturerEntity, ManufacturerDTO>() {
             @Override
             public ManufacturerDTO apply(ManufacturerEntity manufacturerEntity) {
                 return new ModelMapper().map(manufacturerEntity, ManufacturerDTO.class);
             }
         });
+
     }
 
     @Override
@@ -109,6 +109,8 @@ public class ManufacturerService implements IManufacturerServicer {
     public void deleteById(Long id) {
         ManufacturerEntity manufacturerEntity = manufacturerRepository.getManufacturerEntitiesById(id)
                 .orElseThrow(() -> new NotFoundExeption("Manufacturer not found with id :" + id));
+        fileStogareService.deleteLogoFile(manufacturerEntity.getLogo());
         manufacturerRepository.deleteManufacturerEntityById(id);
+
     }
 }

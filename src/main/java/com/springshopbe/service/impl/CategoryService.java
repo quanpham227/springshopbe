@@ -12,8 +12,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryService implements ICategoryService {
@@ -29,26 +31,16 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
-    public Page<CategoryDTO> getAllCategoryPaginged(Pageable pageable) {
-        Page<CategoryEntity> categoryEntityPage = categoryRepository.getAllCategoryPagined(pageable);
-
-        return categoryEntityPage.map(new Function<CategoryEntity, CategoryDTO>() {
-            @Override
-            public CategoryDTO apply(CategoryEntity category) {
-                return new ModelMapper().map(category, CategoryDTO.class);
-            }
-        });
+    public List<CategoryDTO> getAllCategories() {
+        List<CategoryDTO> categories = categoryRepository.getAllCategories().stream()
+                .map(CategoryEntity -> modelMapper.map(CategoryEntity, CategoryDTO.class))
+                        .collect(Collectors.toList());
+        return categories;
     }
 
     @Override
-    public Page<CategoryDTO> searchCategoryPaginged(String name, Pageable pageable) {
-        Page<CategoryEntity> categoryEntityPage = categoryRepository.searchCategoryPaginged(name, pageable);
-        return categoryEntityPage.map(new Function<CategoryEntity, CategoryDTO>() {
-            @Override
-            public CategoryDTO apply(CategoryEntity category) {
-                return new ModelMapper().map(category, CategoryDTO.class);
-            }
-        });
+    public Page<CategoryEntity> searchCategoryPaginged(String name, Pageable pageable) {
+        return categoryRepository.searchCategoryPaginged(name, pageable);
     }
 
     @Override

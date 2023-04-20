@@ -1,21 +1,21 @@
 package com.springshopbe.controller;
 
 import com.springshopbe.dto.CategoryDTO;
+import com.springshopbe.entity.CategoryEntity;
 import com.springshopbe.service.ICategoryService;
 import com.springshopbe.service.impl.MapValidationErrorService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/categories")
@@ -30,27 +30,24 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<Map<String, Object>> getAllCategories (
-            @RequestParam(value = "keyword", defaultValue = "", required = false) String keyword,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size){
-        try {
-            Pageable pageable = PageRequest.of(page,size);
-            Page<CategoryDTO> categoryPage;
-            if(keyword.isEmpty()){
-                categoryPage = categoryService.getAllCategoryPaginged(pageable);
-            }else {
-                categoryPage = categoryService.searchCategoryPaginged(keyword,pageable);
-            }
-            List<CategoryDTO> categories = categoryPage.getContent();
-            Map<String,Object> response = new HashMap<>();
-            response.put("categories", categories);
-            response.put("currentPage", categoryPage.getTotalElements());
-            response.put("totalPage", categoryPage.getTotalPages());
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }catch (Exception exception){
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<?> getAllCategories (){
+        List<CategoryDTO> categories = categoryService.getAllCategories();
+        return new ResponseEntity<>(categories, HttpStatus.OK);
+    }
+
+    @GetMapping("/find")
+    public ResponseEntity<?> getAllCategories
+            (@RequestParam(value = "query", defaultValue = "", required = false) String query,
+             @PageableDefault( size = 5, sort = "name", direction = Sort.Direction.ASC) Pageable pageable){
+
+        Page<CategoryEntity> categoryEntityPage = categoryService.searchCategoryPaginged(query, pageable);
+        List<CategoryDTO> categoryDTOList = categoryEntityPage.stream().map(item->{
+            CategoryDTO categoryDTO = new CategoryDTO();
+            BeanUtils.copyProperties(item, categoryDTO);
+            return categoryDTO;
+        }).collect(Collectors.toList());
+        Page<CategoryDTO> categories = new PageImpl<CategoryDTO>(categoryDTOList, categoryEntityPage.getPageable(), categoryEntityPage.getTotalPages());
+        return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 
     @GetMapping(value = "/{id}/get")
