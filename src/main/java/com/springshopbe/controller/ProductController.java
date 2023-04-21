@@ -1,6 +1,7 @@
 package com.springshopbe.controller;
 
 
+import com.springshopbe.dto.ManufacturerDTO;
 import com.springshopbe.dto.ProductDTO;
 import com.springshopbe.dto.ProductImageDTO;
 import com.springshopbe.dto.UploadedFileInfo;
@@ -13,6 +14,11 @@ import org.apache.tomcat.jni.FileInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -34,6 +40,15 @@ public class ProductController {
     private FileStogareService fileStogareService;
     @Autowired
     private MapValidationErrorService mapValidationErrorService;
+
+    @GetMapping("/find")
+    public ResponseEntity<?> getProductBriefsByName(@RequestParam("query") String query,
+                                              @PageableDefault(size =10, sort = "name", direction = Sort.Direction.ASC) Pageable pageable){
+
+
+        return new ResponseEntity<>(productService.getProductBriefsByName(query,pageable), HttpStatus.OK);
+
+    }
     @PostMapping
     public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDTO dto, BindingResult result){
         ResponseEntity<?> responseEntity = mapValidationErrorService.mapValidationFieds(result);

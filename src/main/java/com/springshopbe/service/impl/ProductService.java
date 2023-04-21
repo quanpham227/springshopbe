@@ -1,5 +1,6 @@
 package com.springshopbe.service.impl;
 
+import com.springshopbe.dto.ProductBriefDTO;
 import com.springshopbe.dto.ProductDTO;
 import com.springshopbe.dto.ProductImageDTO;
 import com.springshopbe.entity.CategoryEntity;
@@ -12,6 +13,7 @@ import com.springshopbe.service.IProductService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -112,5 +114,24 @@ public class ProductService implements IProductService {
     @Transactional
     public void deleteProductById(Long id) {
 
+    }
+
+    @Override
+    public Page<ProductBriefDTO> getProductBriefsByName(String name, Pageable pageable) {
+        Page<ProductEntity> productEntityPage = productRepository.findByNameContainsIgnoreCase(name, pageable);
+
+        List<ProductBriefDTO> productBriefDTOList = productEntityPage.getContent().stream().map(item -> {
+            ProductBriefDTO productBriefDTO = new ProductBriefDTO();
+            BeanUtils.copyProperties(item, productBriefDTO);
+
+            productBriefDTO.setCategoryName(item.getCategory().getName());
+            productBriefDTO.setManufacturerName(item.getManufacturer().getName());
+            productBriefDTO.setImageFileName(item.getImage().getFileName());
+
+            return productBriefDTO;
+        }).collect(Collectors.toList());
+
+        Page<ProductBriefDTO> newPage = new PageImpl<ProductBriefDTO>(productBriefDTOList, productEntityPage.getPageable(), productEntityPage.getTotalElements());
+        return newPage;
     }
 }
