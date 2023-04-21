@@ -1,5 +1,4 @@
 package com.springshopbe.exeption;
-import com.springshopbe.exeption.error.ErrorResponse;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -9,6 +8,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.sql.SQLException;
 import java.util.Date;
 
 @RestControllerAdvice
@@ -96,6 +96,16 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
   public ErrorResponse handleFileStogareException(FileStogareExeption ex, WebRequest request) {
     ErrorResponse errorResponse = new ErrorResponse(
             HttpStatus.BAD_REQUEST,
+            new Date(),
+            ex.getMessage(),
+            request.getDescription(false));
+    return errorResponse;
+  }
+  @ExceptionHandler(SQLException.class)
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  public ErrorResponse handleSQLException(SQLException ex, WebRequest request) {
+    ErrorResponse errorResponse = new ErrorResponse(
+            HttpStatus.INTERNAL_SERVER_ERROR,
             new Date(),
             ex.getMessage(),
             request.getDescription(false));

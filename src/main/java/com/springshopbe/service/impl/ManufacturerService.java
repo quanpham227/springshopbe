@@ -30,6 +30,7 @@ public class ManufacturerService implements IManufacturerServicer {
     private ModelMapper modelMapper;
 
     @Override
+    @Transactional
     public ManufacturerDTO insertManufacturer(ManufacturerDTO manufacturerDTO) {
         List<?> foundedList = manufacturerRepository.findByNameContainsIgnoreCase(manufacturerDTO.getName());
         if(foundedList.size()>0){
@@ -50,6 +51,7 @@ public class ManufacturerService implements IManufacturerServicer {
     }
 
     @Override
+    @Transactional
     public ManufacturerDTO updateManufacturer(Long id,ManufacturerDTO manufacturerDTO) {
         ManufacturerEntity manufacturerEntityOld = manufacturerRepository.getManufacturerEntitiesById(id)
                 .orElseThrow(() -> new NotFoundExeption("Manufacturer with id: " + id + " not found"));

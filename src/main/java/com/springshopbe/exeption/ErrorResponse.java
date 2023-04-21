@@ -1,4 +1,4 @@
-package com.springshopbe.exeption.error;
+package com.springshopbe.exeption;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.http.HttpStatus;

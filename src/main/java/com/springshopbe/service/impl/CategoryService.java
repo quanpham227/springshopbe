@@ -62,7 +62,7 @@ public class CategoryService implements ICategoryService {
     public CategoryDTO createCategory(CategoryDTO categoryDTO) {
         Optional<CategoryEntity> category = categoryRepository.findOneByCategoryName(categoryDTO.getName());
         if(category.isPresent()){
-            throw new DuplicateRecordException("Duplicate Record with code: " + categoryDTO.getName());
+            throw new DuplicateRecordException("already exist: " + categoryDTO.getName());
         }
         try{
             CategoryEntity categoryEntity = modelMapper.map(categoryDTO, CategoryEntity.class);

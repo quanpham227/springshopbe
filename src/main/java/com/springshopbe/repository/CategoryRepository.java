@@ -17,7 +17,7 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity,Long> {
     List<CategoryEntity> getAllCategories();
 
     @Query(value = "select c from CategoryEntity c order by c.createDate desc ")
-    Page<CategoryEntity> getAllCategoryPagined(Pageable pageable);
+    Page<CategoryEntity> findAllBy(Pageable pageable);
 
 
     @Query(value = "select c from CategoryEntity c where c.name LIKE ?1% order by c.createDate desc")

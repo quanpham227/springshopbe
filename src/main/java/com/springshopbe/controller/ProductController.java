@@ -1,6 +1,7 @@
 package com.springshopbe.controller;
 
 
+import com.springshopbe.dto.ProductDTO;
 import com.springshopbe.dto.ProductImageDTO;
 import com.springshopbe.dto.UploadedFileInfo;
 import com.springshopbe.exeption.FileStogareExeption;
@@ -16,21 +17,35 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/products")
 @CrossOrigin
 public class ProductController {
     @Autowired
-    private IProductService iProductService;
+    private IProductService productService;
     @Autowired
     private FileStogareService fileStogareService;
     @Autowired
     private MapValidationErrorService mapValidationErrorService;
+    @PostMapping
+    public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDTO dto, BindingResult result){
+        ResponseEntity<?> responseEntity = mapValidationErrorService.mapValidationFieds(result);
+
+        if(responseEntity != null){
+            return responseEntity;
+        }
+
+        ProductDTO saveDto = productService.createProduct(dto);
+
+        return new ResponseEntity<>(saveDto, HttpStatus.CREATED);
+    }
 
     @PostMapping(value = "/images/one",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,
@@ -52,7 +67,6 @@ public class ProductController {
     public ResponseEntity<?> downloadFile (@PathVariable String filename, HttpServletRequest request){
 
         Resource resource = fileStogareService.loadProductImageFileAsResource(filename);
-
         String contentType = null;
         try{
             contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
