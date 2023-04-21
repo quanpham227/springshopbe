@@ -13,7 +13,7 @@ public interface IProductService {
 
     Page<ProductEntity> searchProductPaginged(String name, Pageable pageable);
 
-    ProductDTO findByProductId(Long id);
+    ProductDTO getEditedProductById(Long id);
 
     ProductDTO findByProductName(String name);
 

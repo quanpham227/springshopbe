@@ -1,21 +1,16 @@
 package com.springshopbe.controller;
 
 
-import com.springshopbe.dto.ManufacturerDTO;
 import com.springshopbe.dto.ProductDTO;
 import com.springshopbe.dto.ProductImageDTO;
 import com.springshopbe.dto.UploadedFileInfo;
 import com.springshopbe.exeption.FileStogareExeption;
-import com.springshopbe.service.IManufacturerServicer;
 import com.springshopbe.service.IProductService;
 import com.springshopbe.service.impl.FileStogareService;
 import com.springshopbe.service.impl.MapValidationErrorService;
-import org.apache.tomcat.jni.FileInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -48,6 +43,10 @@ public class ProductController {
 
         return new ResponseEntity<>(productService.getProductBriefsByName(query,pageable), HttpStatus.OK);
 
+    }
+    @GetMapping("/{id}/getedit")
+    public ResponseEntity<?> getEditedProduct(@PathVariable Long id){
+        return new ResponseEntity<>(productService.getEditedProductById(id), HttpStatus.OK);
     }
     @PostMapping
     public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDTO dto, BindingResult result){

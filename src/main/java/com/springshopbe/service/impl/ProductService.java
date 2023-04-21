@@ -7,6 +7,7 @@ import com.springshopbe.entity.CategoryEntity;
 import com.springshopbe.entity.ManufacturerEntity;
 import com.springshopbe.entity.ProductEntity;
 import com.springshopbe.entity.ProductImageEntity;
+import com.springshopbe.exeption.NotFoundExeption;
 import com.springshopbe.repository.ProductImageRepository;
 import com.springshopbe.repository.ProductRepository;
 import com.springshopbe.service.IProductService;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -46,8 +48,28 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public ProductDTO findByProductId(Long id) {
-        return null;
+    public ProductDTO getEditedProductById(Long id) {
+        ProductEntity found = productRepository.findById(id).orElseThrow(() -> new NotFoundExeption("Product not found"));
+        ProductDTO productDTO = new ProductDTO();
+        BeanUtils.copyProperties(found, productDTO);
+
+        productDTO.setCategoryId(found.getCategory().getId());
+        productDTO.setManufacturerId(found.getManufacturer().getId());
+
+        List<ProductImageDTO> images = found.getImages().stream().map(item -> {
+            ProductImageDTO productImageDTO = new ProductImageDTO();
+            BeanUtils.copyProperties(item, productImageDTO);
+            return productImageDTO;
+        }).collect(Collectors.toList());
+
+        productDTO.setImages(images);
+
+        ProductImageDTO imageDTO = new ProductImageDTO();
+        BeanUtils.copyProperties(found.getImage(), imageDTO);
+
+        productDTO.setImage(imageDTO);
+
+        return productDTO;
     }
 
     @Override
