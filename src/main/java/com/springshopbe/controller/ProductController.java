@@ -109,4 +109,10 @@ public class ProductController {
                         + resource.getFilename() + "\"")
                 .body(resource);
     }
+
+    @DeleteMapping("/images/{filename:.+}")
+    public ResponseEntity<?> deleteImage (@PathVariable String filename) {
+        fileStogareService.deleteProductImageFile(filename);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
