@@ -19,10 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -127,9 +124,58 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public ProductDTO updateProduct(Long id, ProductDTO productDTO) {
-        return null;
+        ProductEntity found = productRepository.findById(id)
+                .orElseThrow(()-> new NotFoundExeption("Product not found"));
+
+        String ignoreFields[] = new String[]{"createdDate","createBy", "image", "images", "viewCount"};
+        BeanUtils.copyProperties(productDTO,found,ignoreFields );
+
+        if(productDTO.getImage().getId() != null && found.getImage().getId() != productDTO.getImage().getId()){
+            fileStogareService.deleteProductImageFile(found.getImage().getFileName());
+
+            ProductImageEntity img = new ProductImageEntity();
+            BeanUtils.copyProperties(productDTO.getImage(), img);
+
+            productImageRepository.save(img);
+
+            found.setImage(img);
+        }
+
+
+        ManufacturerEntity manuf = new ManufacturerEntity();
+        manuf.setId(productDTO.getManufacturerId());
+        found.setManufacturer(manuf);
+
+        CategoryEntity cate = new CategoryEntity();
+        cate.setId(productDTO.getCategoryId());
+        found.setCategory(cate);
+
+        if(productDTO.getImages().size() > 0){
+            List<ProductImageEntity> toDeleteFile = new ArrayList<>();
+
+            found.getImages().stream().forEach(item -> {
+                Boolean existed = productDTO.getImages().stream().anyMatch(img -> img.getId() == item.getId());
+
+                if(!existed) toDeleteFile.add(item);
+            });
+            if(toDeleteFile.size() > 0){
+                toDeleteFile.stream().forEach(item -> {
+                    fileStogareService.deleteProductImageFile(item.getFileName());
+                    productImageRepository.delete(item);
+                });
+            }
+            Set<ProductImageEntity> imgList = productDTO.getImages().stream().map(item-> {
+                ProductImageEntity img = new ProductImageEntity();
+                BeanUtils.copyProperties(item, img);
+                return img;
+            }).collect(Collectors.toSet());
+            found.setImages(imgList);
+        }
+        ProductEntity savedEntity = productRepository.save(found);
+        productDTO.setId(savedEntity.getId());
+        return productDTO;
     }
 
     @Override

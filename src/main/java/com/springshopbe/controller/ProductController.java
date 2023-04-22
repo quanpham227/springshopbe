@@ -61,6 +61,19 @@ public class ProductController {
         return new ResponseEntity<>(saveDto, HttpStatus.CREATED);
     }
 
+    @PatchMapping("/{id}/all")
+    public ResponseEntity<?> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductDTO dto, BindingResult result){
+        ResponseEntity<?> responseEntity = mapValidationErrorService.mapValidationFieds(result);
+
+        if(responseEntity != null){
+            return responseEntity;
+        }
+
+        ProductDTO updateDto = productService.updateProduct(id,dto);
+
+        return new ResponseEntity<>(updateDto, HttpStatus.CREATED);
+    }
+
     @PostMapping(value = "/images/one",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,
                     MediaType.APPLICATION_FORM_URLENCODED_VALUE,
