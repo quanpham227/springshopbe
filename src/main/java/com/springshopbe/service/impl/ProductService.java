@@ -179,8 +179,22 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void deleteProductById(Long id) {
+        ProductEntity found = productRepository.findById(id)
+                .orElseThrow(()-> new NotFoundExeption("Product not found"));
+
+        if(found.getImage() != null){
+            fileStogareService.deleteProductImageFile(found.getImage().getFileName());
+            productImageRepository.delete(found.getImage());
+        }
+        if(found.getImages().size() > 0){
+            found.getImages().stream().forEach(item -> {
+                fileStogareService.deleteProductImageFile(item.getFileName());
+                productImageRepository.delete(item);
+            });
+        }
+        productRepository.delete(found);
 
     }
 

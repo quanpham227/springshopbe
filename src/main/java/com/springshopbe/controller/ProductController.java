@@ -74,6 +74,11 @@ public class ProductController {
         return new ResponseEntity<>(updateDto, HttpStatus.CREATED);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteProduct(@PathVariable Long id){
+        productService.deleteProductById(id);
+        return new ResponseEntity<>("Product with id: " + id + "was deleted" , HttpStatus.OK);
+    }
     @PostMapping(value = "/images/one",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,
                     MediaType.APPLICATION_FORM_URLENCODED_VALUE,
